@@ -294,3 +294,63 @@ function [fb, Pb] = nearestBin(f, P, f0)
 end
 
 EXERCISE 4
+<img width="1920" height="1080" alt="Screenshot (148)" src="https://github.com/user-attachments/assets/0704727b-ab9b-4f5e-adb0-33af1bacf1ac" />
+<img width="1920" height="1080" alt="Screenshot (147)" src="https://github.com/user-attachments/assets/1401cc5b-ae04-4b9a-a182-8b81e5332e31" />
+<img width="1920" height="1080" alt="Screenshot (146)" src="https://github.com/user-attachments/assets/f0438cd4-866e-4b12-abd9-f8ca8eeeef70" />
+%% DTFT vs DFT of x = [1 1 1 1]
+clear; close all; clc
+
+x = [1 1 1 1];
+n = 0:length(x)-1;
+
+%% Task 1: DTFT at 1000 frequencies between -pi and pi
+w = linspace(-pi, pi, 1000);
+X = x * exp(-1j * (n.' * w));        % X(w) = sum x[n] e^{-jwn}
+
+figure
+plot(w, abs(X), 'LineWidth', 1.5), grid on
+xlabel('Angular frequency (rad/sample)')
+ylabel('Magnitude')
+title('DTFT of x = [1 1 1 1]')
+xlim([-pi pi])
+xticks(-pi:pi/2:pi)
+xticklabels({'-\pi', '-\pi/2', '0', '\pi/2', '\pi'})
+
+%% Task 2: DFT with 4 and 64 points
+X4  = fft(x, 4);
+X64 = fft(x, 64);                    % x is zero-padded to 64 samples
+
+disp('fft(x,4) ='), disp(X4)
+
+% Frequencies of the DFT bins, shifted to the range -pi ... pi
+w4  = (-2:1)   * 2*pi/4;             % -pi, -pi/2, 0, pi/2
+w64 = (-32:31) * 2*pi/64;
+
+%% Task 3: magnitude of each DFT
+figure
+subplot(2,1,1)
+stem(0:3, abs(X4), 'filled'), grid on
+xlabel('k'), ylabel('|X[k]|'), title('|fft(x,4)|')
+
+subplot(2,1,2)
+stem(0:63, abs(X64), 'filled', 'MarkerSize', 3), grid on
+xlabel('k'), ylabel('|X[k]|'), title('|fft(x,64)|')
+
+%% Task 4: compare the DTFT curve with the DFT values
+figure
+plot(w, abs(X), 'k', 'LineWidth', 1.5), hold on
+stem(w64, abs(fftshift(X64)), 'b', 'MarkerSize', 3)
+stem(w4,  abs(fftshift(X4)),  'r', 'filled', 'LineWidth', 1.5, 'MarkerSize', 7)
+hold off, grid on
+xlim([-pi pi])
+xticks(-pi:pi/2:pi)
+xticklabels({'-\pi', '-\pi/2', '0', '\pi/2', '\pi'})
+xlabel('Angular frequency (rad/sample)'), ylabel('Magnitude')
+legend('DTFT', 'fft(x,64)', 'fft(x,4)')
+title('DFT values are samples of the DTFT')
+
+%% Task 6: where the DTFT magnitude is zero
+zeroFreqs = w(abs(X) < 0.02);
+fprintf('DTFT magnitude ~0 near w = %s rad/sample\n', mat2str(zeroFreqs, 3))
+% Expected: w = -pi, -pi/2, pi/2, pi
+
